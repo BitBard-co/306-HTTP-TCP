@@ -1,18 +1,21 @@
 CC = gcc
-CFLAGS = -std=c11 -Wall -Wextra -O2
+CFLAGS = -std=c11 -Wall -Wextra -O2 -D_POSIX_C_SOURCE=200112L -D_DEFAULT_SOURCE
 LDFLAGS = 
 
 SRC = src/main.c src/client.c src/http.c src/util.c
 OBJ = $(SRC:.c=.o)
 BIN = bin/sensor_client
 
+.PHONY: all clean run
+
 all: $(BIN)
 
 $(BIN): $(OBJ)
+	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -o $@ $(OBJ) $(LDFLAGS)
 
 %.o: %.c
-	$(CC) $(CFLAGS) -Iinclude -c $< -o $@
+	$(CC) $(CFLAGS) -Ilibs -c $< -o $@
 
 clean:
 	rm -f $(OBJ) $(BIN)
