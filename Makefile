@@ -6,7 +6,7 @@ SRC = src/main.c src/client.c src/http.c src/util.c
 OBJ = $(SRC:.c=.o)
 BIN = bin/sensor_client
 
-.PHONY: all clean run
+.PHONY: all clean distclean run
 
 all: $(BIN)
 
@@ -19,6 +19,9 @@ $(BIN): $(OBJ)
 
 clean:
 	rm -f $(OBJ) $(BIN)
+
+distclean: clean
+	rm -rf bin
 
 run:
 	./bin/sensor_client httpshayan.org 80 /post 22.4 550e8400-e29b-41d4-a716-446655440000 raw
