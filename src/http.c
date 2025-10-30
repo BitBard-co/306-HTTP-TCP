@@ -1,3 +1,4 @@
+// Build a minimal HTTP/1.1 POST request. Keep it simple and readable.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,23 +6,23 @@
 #include "util.h"
 
 char *build_http_post(const char *host, const char *path, const char *json_body, size_t *out_len) {
-    size_t body_len = strlen(json_body);
-    char content_len[64];
-    snprintf(content_len, sizeof content_len, "%zu", body_len);
-
-    const char *templ = 
+    const char *templ =
         "POST %s HTTP/1.1\r\n"
         "Host: %s\r\n"
         "Content-Type: application/json\r\n"
         "Connection: close\r\n"
-        "Content-Length: %s\r\n"
+        "Content-Length: %zu\r\n"
         "\r\n"
         "%s";
 
-    size_t req_len = strlen(templ) + strlen(path) + strlen(host) + strlen(content_len) + strlen(json_body) + 1;
+    size_t body_len = strlen(json_body);
+    // First pass: get required length
+    int needed = snprintf(NULL, 0, templ, path, host, body_len, json_body);
+    if (needed < 0) return NULL;
+    size_t req_len = (size_t)needed + 1; // include NUL
     char *req = malloc(req_len);
     if (!req) return NULL;
-    int n = snprintf(req, req_len, templ, path, host, content_len, json_body);
+    int n = snprintf(req, req_len, templ, path, host, body_len, json_body);
     if (n < 0) { free(req); return NULL; }
     if (out_len) *out_len = (size_t)n;
     return req;
